@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DragonWare Operating System</title>
+        <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+        <header>
+                <nav>
+                        <a href="#">Homepage</a>
+                        <a href="./gallery.html">Gallery</a>
+                        <a href="./design.html">Architecture</a>
+                </nav>
+                <div class="content">
+                        <h1>Welcome to DragonWare!</h1>
+                </div>
+        </header>
+        <main>
+                <p>
+                        DragonWare is a compact, lightweight and fully free experimental operating system that aims to
+                        explore alternative operating
+                        system designs and provide a modern application development platform without being tied to UNIX
+                        or POSIX standards.
+                        DragonWare is based around a small <a href="https://wiki.osdev.org/Microkernel">microkernel</a>
+                        upon which a multiserver operating system is built, providing all the necessary facilities for a
+                        complete operating system.
+                        DragonWare is written in modern C23 and is completely open source software, provided
+                        under the GNU General Public License v3. You can see the source code and development history
+                        <a href="https://github.com/tseli0s/DragonWare">here</a>. DragonWare is NOT a Linux distribution
+                        or a Unix clone. It is designed, implemented and developed completely from scratch.
+                </p>
+                <p>
+                        DragonWare has been in development since April 2025, when I first began experimenting with
+                        operating
+                        system tutorials to understand how they work better and put myself up for a challenge. It was
+                        first
+                        announced to the <code>osdev</code> community on May 1st, 2026. As of writing this, it sits at
+                        roughly
+                        12 thousand lines of code, with about half that being the microkernel that the rest of the
+                        operating system
+                        sits on.
+                </p>
+                <p>
+                        <strong>
+                                ATTENTION: DragonWare is alpha state, incomplete software. Many features are missing,
+                                bugs exist that may even cause a total system stall or hard resets, and hardware
+                                failures
+                                may occur. DragonWare comes with ZERO WARRANTY, and the authors are not responsible for
+                                any damage to your computer, data loss, or dragons flying out of your CPU fan. You've
+                                been warned!
+                        </strong>
+                </p>
+                <h2>Download</h2>
+                <p>
+                        DragonWare does not provide standalone downloads at the moment. It is recommended instead to
+                        build the entire
+                        operating system from the source code based on the latest release tag, with instructions found
+                        in the
+                        <a href="https://github.com/tseli0s/DragonWare/blob/master/README.md#building-dragonware">README
+                                file</a>.
+                        An automated build job creates <strong>untested, automatically published ISO files</strong>
+                        from the latest commit that can be written in a boot medium or loaded into a virtual machine. If
+                        building
+                        the operating system is too complicated, these can provide a quick and dirty solution to give
+                        DragonWare
+                        a try.
+                </p>
+                <div class="buttonarea">
+                        <a href="https://github.com/tseli0s/DragonWare" class="abtn">Get the source code!</a>
+                        <a href="https://github.com/tseli0s/DragonWare/releases" class="abtn">Releases</a>
+                </div>
+                <hr>
+                <h2>Limitations</h2>
+                <p>
+                        DragonWare is in an early development state, and as such, many features are missing, incomplete
+                        or buggy.
+                        This is a list of a couple drawbacks that DragonWare currently suffers from. They are being
+                        worked on,
+                        but you're always welcome to help fix them:
+                </p>
+                <ul>
+                        <li>
+                                There are no filesystem or disk drivers. That means you can't load your favourite
+                                programs, read your favourite
+                                books or view your favourite pictures. DragonWare is significantly limited in the
+                                storage aspect, but there's ongoing
+                                work to have this resolved before the next release.
+                        </li>
+                        <li>
+                                DragonWare is a single-threaded, non preemptive kernel, uniprocessor 32 bit operating
+                                system. Translated into simple English,
+                                this means that DragonWare will only be able to use at most 4GBs of memory, can only run
+                                in one core even if you have 128 of them,
+                                and the kernel runs in a single thread. Your computer will be probably underwhelmed by
+                                it.
+                        </li>
+                        <li>
+                                The operating system cannot run anything graphical, other than a console. No <a
+                                        href="https://en.wikipedia.org/wiki/X_Window_System">X11</a>,
+                                no <a href="https://en.wikipedia.org/wiki/Wayland_(protocol)">Wayland</a>, no Firefox or
+                                Chrome, no GIMP, nothing. It doesn't look that
+                                much different from early Unix or DOS at first glance, and creating a graphical desktop
+                                is honestly the last thing I care about.
+                        </li>
+                        <li>
+                                Even if the above are resolved, there are precisely zero applications targeting
+                                DragonWare. Most software is intended to be ported
+                                through source compatibility instead, at some point in the future.
+                        </li>
+                </ul>
+                <hr>
+                <h2>FAQ</h2>
+                <div class="faq">
+                        <details>
+                                <summary>What is DragonWare?</summary>
+                                <p>
+                                        DragonWare is a free and open source hobby operating system written entirely
+                                        from
+                                        scratch, intended
+                                        for learning purposes, exploring a new system architecture and API design.
+                                        DragonWare
+                                        provides
+                                        a complete operating system (so not just a kernel). It is <b>NOT</b> a Linux
+                                        distro.
+                                </p>
+                        </details>
+                        <details>
+                                <summary>Can it run programs?</summary>
+                                <p>
+                                        Only the ones built into the operating system, as it lacks a disk driver and a
+                                        filesystem driver.
+                                        Unfortunately, no programs outside what's shipped with DragonWare have been
+                                        ported yet.
+                                        Both issues
+                                        are being worked on.
+                                </p>
+                        </details>
+                        <details>
+                                <summary>Are microkernels really better?</summary>
+                                <p>
+                                        The discussion around microkernels is too complicated to hold in a FAQ of a
+                                        small hobby OS' website and
+                                        there's not an absolute "microkernels are slow" argument to be made. Indeed, it
+                                        is guaranteed that when
+                                        data crosses an address space, there <b>will</b> be a performance hit, but
+                                        modern hardware can mitigate this
+                                        significantly (eg. tagged TLB entries) and there are other advantages to
+                                        microkernels that must be considered.
+                                        Let's not forget that DragonWare is a microkernel because I wanted to understand
+                                        microkernels in depth.
+                                </p>
+                                <p>
+                                        For more details, the <a
+                                                href="https://en.wikipedia.org/wiki/Microkernel">microkernel article on
+                                                Wikipedia</a>
+                                        and the <a
+                                                href="https://www.oreilly.com/openbook/opensources/book/appa.html">Torvalds-Tanenbaum
+                                                debate</a> can
+                                        be useful to readers.
+                                </p>
+                        </details>
+                        <details>
+                                <summary>How can I contribute?</summary>
+                                <p>
+                                        DragonWare uses <a href="https://github.com/tseli0s/DragonWare">GitHub</a> for
+                                        all
+                                        development, so pull requests
+                                        should be sent there. Besides the usual programming tasks, DragonWare can use
+                                        your help
+                                        <strong>even if you know zero coding</strong>:
+                                <ul>
+                                        <li>
+                                                You can create a logo for the project or help with graphics-related
+                                                activities in general
+                                        </li>
+                                        <li>
+                                                You can help with documentation. Most of the DragonWare codebase is
+                                                extensively documented
+                                                to make development faster and applying the black box technique easier.
+                                                If you ever run
+                                                in an undocumented case, a bug, or anything else, adding documentation
+                                                is highly appreciated.
+                                        </li>
+                                        <li>
+                                                You can help with the website. I kinda suck at HTML and I am not good at
+                                                web stuff in general.
+                                                You can improve its look, or the content of the pages, etc, if you're up
+                                                for that.
+                                        </li>
+                                </ul>
+                                </p>
+                        </details>
+                </div>
+                <h2>License</h2>
+                <p>
+                        DragonWare is distributed under the terms of the GNU General Public License version 3. You can
+                        find the
+                        <a href="https://www.gnu.org/licenses/gpl-3.0.txt">full license of the text here</a>. All of
+                        DragonWare is
+                        provided fully free both in cost and freedom. You are free to study from it and learn, or use
+                        parts of its
+                        codebase in your own project, as long as it remains freely accessible to others.
+                </p>
+        </main>
+</body>
+
+</html>

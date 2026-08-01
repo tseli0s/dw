@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Design of DragonWare</title>
+        <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+        <header>
+                <nav>
+                        <a href="./index.html">Homepage</a>
+                        <a href="./gallery.html">Gallery</a>
+                        <a href="#">Architecture</a>
+                </nav>
+                <div class="content">
+                        <h1>Design of the DragonWare Operating System</h1>
+                </div>
+        </header>
+        <main>
+                This page talks about the design of DragonWare as an operating system, from the bootloader, to the
+                kernel, the
+                shell and everything else. It is intended to give readers a better view of the project and what makes it
+                different.
+                In other words, why DragonWare is not Yet Another UNIX Clone.
+                <br>
+                This page is not a technical paper nor a proof of anything. Consider it more in the style of a blog or
+                an informal
+                relic of how DragonWare came to be. As always, you're very welcome to ask any questions you might have.
+
+                <h2>Bootloader</h2>
+                <p>
+                        An operating system needs to be loaded into memory by the computer's firmware. Because of
+                        restrictions in
+                        the way a regular PC boots, this is often offloaded to a separate piece of software called
+                        a <a href="https://en.wikipedia.org/wiki/Bootloader">bootloader</a>, with the main
+                        responsibility being to load the kernel in memory and, in DragonWare's case, also load the
+                        startup drivers (microkernel servers).
+                        <br>
+                        For months before DragonWare was first published, the popular bootloader called <a
+                                href="https://gitlab.freedesktop.org/gnu-grub/grub">GRUB</a>
+                        as well as Limine were used. Now, on a personal note, I think writing my own bootloader ended up
+                        being a waste of my time, I learnt very few things
+                        and the opportunity cost with respect to kernel development was significant (haha look at me I
+                        took an economics class). But the motivations
+                        were better integration with the operating system (DragonWare is developed in a monorepo, like
+                        the BSDs), significantly less bloat and most importantly,
+                        compatibility with pre-Pentium II hardware (at the time, I wanted to make DragonWare run in
+                        older hardware exclusively). It is still possible to
+                        use DragonWare with other bootloaders, but less attention is given to them.
+                        <br>
+                        But in the end, I learnt a few things, and I'm proud of this effort, even as hackish as it feels
+                        to write it in the first place.
+                </p>
+                <hr>
+                <h2 id="microkernel">Microkernel</h2>
+                <p>
+                        DragonWare is built around a minimal, simple microkernel. A microkernel is an operating system
+                        kernel which is intentionally limited in functionality and features, offloading much of the
+                        traditional kernel roles to userspace servers (more on that later...). A commonly cited example
+                        is
+                        Mach, on top of which <a href="https://www.gnu.org/software/hurd/hurd.html">GNU/Hurd</a> is
+                        built.
+                        <br>
+                        The advantages of microkernels are many, but to summarize them in a quick way:
+                <ul>
+                        <li>
+                                Microkernels are often, because of their limited nature, very small
+                                in code size and features. This makes them much, much easier to audit and
+                                prove their correct behaviour across different cases. It also makes them,
+                                most importantly must I add, very secure, as the attack surface is too tiny
+                                and often controlled.
+                        </li>
+                        <li>
+                                Microkernels are resilient. They contain little to no driver code, and allow
+                                little to no third party code in their address space. This means there are not
+                                many failure points in the first place. But they also have a unique ability: Since
+                                the drivers run as simple user programs, a crash in one is unlikely to affect the other,
+                                and the kernel can restart the process as if it just loaded.
+                        </li>
+                        <li>
+                                Microkernels are modular. You can swap any part of any operating system based on a
+                                microkernel, for a better alternative. Once again, everything runs as a regular program,
+                                not much different in the view of the kernel than your web browser or your terminal (If
+                                DragonWare had the former, at least...).
+                        </li>
+                        <li>
+                                Microkernels are portable. The effort required to port a massive monolithic kernel to a
+                                niche,
+                                undocumented instruction set can be years of work. On the other hand, porting a
+                                microkernel
+                                only a few thousand lines of code long can be done by an experienced hacker in a few
+                                weeks.
+                        </li>
+                        <li>
+                                Microkernels are fun. Seriously, look around you. Everything is monolithic, modular,
+                                UNIX-like,
+                                traditional designs when it comes to operating systems. Why not explore the advantages
+                                of each?
+                                What stops you from learning how microkernels work and how operating systems are built
+                                on top of them?
+                                <br>
+                                On another note, DragonWare DID initially start out as another monolithic kernel. You
+                                know, I wanted
+                                to understand operating systems and that's why I started writing it. At some point I
+                                realized "hey, what
+                                about a microkernel? I should give it a try. See how one is actually built". And I
+                                started dropping many
+                                things I did internally, and rewrote them as regular programs instead.
+                        </li>
+                </ul>
+                </p>
+                <hr>
+                <h2 id="libdwuser">libdwuser</h2>
+                <p>
+                        On top of the microkernel the <code>dwuser</code> library is built. This library forms the basis
+                        of every
+                        application compiled for DragonWare. It provides access to kernel APIs, types, useful utilities
+                        and cleaner,
+                        native functions to perform common operations. It is intended as a native, clean replacement
+                        over the shortcomings
+                        of <code>libc</code> and other Unix-inspired libraries, with all batteries included to help
+                        developers.
+                        <br>
+                        A major motivation for DragonWare is what I perceive as legacy baggage in traditional C
+                        libraries to fix problems.
+                        I wanted to start from scratch, see how can I create a modern API set to develop native
+                        applications. For example,
+                        <code>libc</code>, being influenced heavily from Unix, is designed around the concept of
+                        "everything is a file".
+                        DragonWare doesn't understand "files" in and of itself. It doesn't make sense to force this
+                        paradigm in applications.
+                        <code>dwuser</code> is precisely the result of this idea.
+                        <br>
+                        I strongly believe that not EVERYTHING is a file. Your graphics card is not a file. It is a
+                        piece of hardware. It
+                        deserves its own mechanisms for access. Your headphones are not a file. They play sound. Unix
+                        tried to work around
+                        this with <code>sysctl</code>, and standardization broke down as hardware moved on and improved
+                        (let's not even
+                        talk about clones having their own drivers and therefore their own <code>sysctl</code> opcodes
+                        for each device).
+                </p>
+                <hr>
+                <h2>Multiserver architecture</h2>
+                <p>
+                        As mentioned, the kernel is intentionally "dumb". It doesn't know anything other than switching
+                        processes and sending
+                        messages around*. But then, how would you open a file, or write some text on the screen? What
+                        about my graphics card?
+                        <br>
+                        On top of the aforementioned <a href="#libdwuser">libdwuser</a> and the <a
+                                href="#microkernel">microkernel</a>, DragonWare
+                        provides the so called "servers". A server is a process, often with special hardware access
+                        rights, that provides
+                        applications with a necessary <i>service</i>. Using message passing, the <i>clients</i> send
+                        messages to servers to
+                        request something from them. Let's see a simple example flow of printing something to the
+                        screen, step by step as it
+                        happens internally. Program A wants to write the text "hello world" on the screen:
+                <ol>
+                        <li>
+                                DragonWare loads at boot time a server binary. It has no idea what that binary is or
+                                what it does, it
+                                just immediately loads it and prepares it to run.
+                        </li>
+                        <li>
+                                When the binary is run, it creates a <i>global port</i> named
+                                <code><b>CONSOLE</b></code>. Other
+                                processes can now open this port and send messages to it.
+                                <br>
+                                <small>
+                                        <i>
+                                                Quick clarification - Sending messages "to a process" is not a thing.
+                                                All IPC is
+                                                done using ports. A process exposes a port, another process reads
+                                                messages from
+                                                this port when they arrive.
+                                        </i></small>
+                        </li>
+                        <li>
+                                Program A opens a connection to the port <code><b>CONSOLE</b></code> provided by the
+                                console server*.
+                        </li>
+                        <li>
+                                Program A now sends a message to port <code><b>CONSOLE</b></code>, following the
+                                server's
+                                protocol, telling it that it wishes to print the string, along with how many bytes to
+                                print.
+                        </li>
+                        <li>
+                                The console server is woken up. It sees a message has arrived by a client, and reads the
+                                parameters
+                                of this message (what is the client asking for, permissions, etc).
+                        </li>
+                        <li>
+                                It sees that the client wants to print something on the screen. It agrees to do so, and
+                                writes the characters of this message to the screen.
+                        </li>
+                        <li>
+                                The user now sees somewhere on the screen "hello world". The console server sees no more
+                                messages,
+                                and temporarily goes back to sleep.
+                        </li>
+                </ol>
+                Notice how the kernel took zero action here, besides passing the messages around. This was purely done
+                in
+                userspace, by regular programs.
+                <br>
+                <small>
+                        <ol>
+                                <li>
+                                        * The kernel actually contains a little more functionality than that. Boot
+                                        message drivers, object
+                                        handling, memory management, and others. But for the purposes of this article,
+                                        we can ignore them.
+                                </li>
+                                <li>
+                                        * The console server isn't one thing - Two implementations exist in DragonWare,
+                                        one built on top
+                                        of a generic graphics driver. And because of microkernel design, it is possible
+                                        to write a separate
+                                        implementation.
+                                </li>
+                        </ol>
+                </small>
+                </p>
+                <hr>
+                <h2>libc</h2>
+                <p>
+                        On top of the former two, <code>libc</code> is implemented. Usually by wrapping around
+                        <code>dwuser</code> APIs.
+                        The most important parts of <code>libc</code> are the everyday functions taken for granted:
+                        <code>memcpy()</code>,
+                        <code>printf()</code>, <code>exit()</code>, et al. Despite the opinionated takes on it in the
+                        section on <code>dwuser</code>,
+                        it is still essential to a complete operating system that DragonWare aspires to be, for two
+                        major reasons:
+                <ol>
+                        <li>
+                                Porting applications in the future is going to be very easy, because all the necessary
+                                <code>libc</code>
+                                functions will be present.
+                        </li>
+                        <li>
+                                There's no reason to duplicate the code. Even the compiler expects a
+                                <code>memcpy</code>/<code>memset</code>
+                                implementation for its own internal semantics. While it <i>can</i> be all included in
+                                <code>dwuser</code>, it
+                                is better for modularity and DRY principles to keep them separate.
+                        </li>
+                </ol>
+                <br>
+                The most important thing here is that <b><code>libc</code> must remain 100% compliant to the official
+                        standard</b>. C23 is considered
+                the standard that DragonWare's <code>libc</code> implementation abides to (since DragonWare itself uses
+                the C23 standard in its codebase),
+                and all implementation requirements are to be followed to the letter. One exception is done for third
+                party software which relies on
+                nonstandard behaviour in many operating systems, but we have a long way ahead before this becomes a
+                problem.
+                <br>
+                That being said, <code>libc</code> is not intended to develop applications for DragonWare. The
+                <code>dwuser</code> library is used
+                for anything more advanced that "print some text on the screen". It is only there for future
+                compatibility and separation of concerns.
+                Especially for performant I/O and fast data exchange locally, <code>libc</code> is basically a no-go. It
+                translates into the
+                DragonWare API internally and that
+                induces performance costs. Besides, some functionality will always be missing.
+                <br>
+                A future <code>libstdc++</code> is planned, to also support porting C++ applications. The aims will
+                remain the same: Complete standard
+                conformance to the fullest extent and no extensions or extra code than what's necessary to port
+                applications.
+                </p>
+                <hr>
+                <h2>dcp (DragonWare Command Prompt)</h2>
+                <p>
+                        All operating systems, at least those targeting human users, need to provide a way to access the
+                        functionality presented
+                        by the operating system. DragonWare is no different in that aspect. In combination with
+                        everything previously mentioned,
+                        a shell has been developed, called a command prompt instead frankly because I liked the name
+                        better.
+                        <br>
+                        The shell receives text input from the user and converts it into machine readable instructions
+                        to be executed. There's more
+                        to it, but that's the gist of what a shell does. Because DragonWare has no disk drivers or
+                        filesystem support yet, it is
+                        limited to just a handful of builtin commands. Perhaps what makes <code>dcp</code> different as
+                        a shell is that very little
+                        functionality is provided by it. It parses commands, does something with them, and nothing more.
+                        No script execution (that will
+                        be offloaded in a separate engine depending on what scripting language DragonWare may support
+                        one day) and no arbitrary features
+                        like system configuration built into the shell's configuration. Lean and minimal, for seperation
+                        of concerns.
+                </p>
+                <hr>
+                <h2>Miscellaneous</h2>
+                <ul>
+                        <li>
+                                The traditional <code>/path/to/file.txt</code> filesystem hierarchy standard from Unix
+                                is omitted from DragonWare.
+                                DragonWare is designed with <i>volumes</i> in mind. You select a volume, and find a file
+                                there. For example,
+                                to open a text file in a CD-ROM and then move it in the hard drive, you would do this:
+                                <code>
+                                        <pre>
+/* assuming a function that opens a file exists here, as a placeholder for the future */
+if (OpenFile("cdrom0::/dir/file.txt") != STATUS_OK) exit(EXIT_FAILURE);
+
+/* same here to move a file */
+if (MoveFile("cdrom0::/dir/file.txt", "hd0::/file.txt") != STATUS_OK ) exit(EXIT_FAILURE);
+                                        </pre>
+                                </code>
+                                This model is already used in the bootloader, and will soon be present in the operating
+                                system proper as well,
+                                and it is a contrast to the way mounting volumes and accessing them works in many
+                                operating systems like Linux
+                                or macOS.
+                        </li>
+                        <li>
+                                File extensions are used extensively. For example, executables take the
+                                <code>.run</code> extension. This is also
+                                a tradition, in a way, that holds from the bootloader, and specifically its FAT32
+                                driver. Besides, it will help to
+                                automatically choose how to make use of a file given, in the future (An
+                                <code>open</code> command is planned in the
+                                shell for this purpose. If you <code>open</code> a .run file, it will assume you're
+                                trying to run a program. If you
+                                <code>open</code> a .txt file, it will try to open it in the text editor. And so on)
+                        </li>
+                        <li>
+                                Every thread must have its own heap. This is how sections were born. Instead of having
+                                one global pool of memory to
+                                write data to, the thread can allocate a thread-specific heap and deallocate it upon
+                                exit. The two advantages are
+                                reduced memory usage in long term use (threads will simply free their heap as soon as
+                                they're done), and increased
+                                concurrency performance (No false sharing, no need for locks, no unnecessary resource
+                                sharing).
+                        </li>
+                </ul>
+        </main>
+</body>
