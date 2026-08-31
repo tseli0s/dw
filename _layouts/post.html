@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ page.title }} - DragonWare</title>
+        <link rel="stylesheet" href="{{ site.baseurl }}/style.css">
+</head>
+
+<body>
+        <header>
+                <nav>
+                        <a href="{{ site.baseurl }}/">Homepage</a>
+                        <a href="{{ site.baseurl }}./gallery.html">Gallery</a>
+                        <a href="{{ site.baseurl }}./design.html">Architecture</a>
+                        <a href="{{ site.baseurl }}/blog.html">Blog</a>
+                </nav>
+                <div class="content">
+                        <h1>{{ page.title }}</h1>
+                </div>
+        </header>
+        <main>
+                <small>
+                        <p>
+                                <i>On {{ page.date | date: "%B %d, %Y" }}</i>
+                        </p>
+                </small>
+                <hr>
+                {{ content }}
+        </main>
+</body>
+
+</html>
