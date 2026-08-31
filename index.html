@@ -84,19 +84,24 @@
                 </p>
                 <ul>
                         <li>
-                                There are no filesystem or disk drivers. That means you can't load your favourite
+                                There are no filesystem drivers. That means you can't load your favourite
                                 programs, read your favourite
                                 books or view your favourite pictures. DragonWare is significantly limited in the
                                 storage aspect, but there's ongoing
-                                work to have this resolved before the next release.
+                                work to have this resolved before the next release. In August, a prototype ATA/IDE
+                                driver
+                                was implemented <a href="https://github.com/tseli0s/DragonWare/pull/16">in pull request
+                                        #16</a>,
+                                and there's ongoing work to implement a full FAT32 filesystem driver (at least read
+                                only).
                         </li>
                         <li>
-                                DragonWare is a single-threaded, non preemptive kernel, uniprocessor 32 bit operating
-                                system. Translated into simple English,
+                                DragonWare is a uniprocessor 32 bit operating system, with the kernel unable to preempt
+                                itself. Translated into simple English,
                                 this means that DragonWare will only be able to use at most 4GBs of memory, can only run
                                 in one core even if you have 128 of them,
                                 and the kernel runs in a single thread. Your computer will be probably underwhelmed by
-                                it.
+                                it, and DragonWare won't be able to use your machine to its maximum potential.
                         </li>
                         <li>
                                 The operating system cannot run anything graphical, other than a console. No <a
